@@ -1,0 +1,31 @@
+{
+    "name": "lab-testnet",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "NODE_OPTIONS=\"--stack-trace-limit=100\" hh test",
+        "clean": "rm -rf artifacts cache node_modules build/*"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "@nomicfoundation/hardhat-chai-matchers": "2.0.8",
+        "@nomicfoundation/hardhat-ethers": "3.0.8",
+        "chai": "4.3.7",
+        "ethers": "6.13.2",
+        "hardhat": "2.22.15",
+        "mocha": "^10.2.0"
+    },
+    "dependencies": {
+        "@ethereumjs/util": "10.0.0",
+        "@nomicfoundation/hardhat-ethers": "3.0.8",
+        "@openzeppelin/contracts": "5.4.0",
+        "@uniswap/lib": "4.0.1-alpha",
+        "@uniswap/sdk": "3.0.3",
+        "@uniswap/v2-core": "1.0.1",
+        "dotenv": "17.2.1",
+        "hardhat-tracer": "3.2.1"
+    }
+}
