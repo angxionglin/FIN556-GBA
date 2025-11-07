@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -28,7 +30,5 @@
     "globals": "^16.4.0",
     "vite": "^7.1.7"
   },
-  "homepage": "https://angxionglin.github.io/FIN556-GBA",
-  "predeploy": "npm run build",
-  "deploy": "gh-pages -d build"
+  "homepage": "https://angxionglin.github.io/FIN556-GBA"
 }
