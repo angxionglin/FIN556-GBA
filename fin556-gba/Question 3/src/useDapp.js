@@ -153,8 +153,71 @@ const useDapp = ({
     return outputAmt;
   };
 
+  // const buyTokens = async (inputAmt, inputAddr, outputAddr, account) => {
+  //   throw new Error("Not implemented yet");
+  // };
   const buyTokens = async (inputAmt, inputAddr, outputAddr, account) => {
-    throw new Error("Not implemented yet");
+    // Get Reserves to ensure pool exists and to compute amounts
+    const factory = new ethers.Contract(
+      uniswapFactoryAddress,
+      ["function getPair(address,address) view returns(address)"],
+      account
+    );
+
+    const reserves = await _getReserves(
+      factory,
+      {
+        TOKEN_0: inputAddr,
+        TOKEN_1: outputAddr,
+      },
+      account
+    );
+
+    console.log("Reserves:", reserves);
+
+    if (!reserves || !reserves.reserveA || !reserves.reserveB) {
+      throw new Error("Failed to fetch reserves from the pool");
+    }
+
+    // Get output token amount from the input
+    // The reserves are passed according to token ordering, so reverse them for the buy swap
+    const outputAmt = _getAmountOut(
+      inputAmt,
+      reserves.reserveB, // input reserve (the token you input here)
+      reserves.reserveA // output reserve (the token you want to receive)
+    );
+
+    // Load Uniswap Router contract
+    const uniswap = new ethers.Contract(
+      uniswapRouterAddress,
+      ["function swapExactTokensForTokens(uint,uint,address[],address,uint)"],
+      account
+    );
+
+    // Approve router to spend input tokens
+    const inputToken = new ethers.Contract(
+      inputAddr,
+      ["function approve(address,uint256)"],
+      account
+    );
+    const response = await inputToken.approve(uniswapRouterAddress, inputAmt);
+    await response.wait();
+    console.log("trade: approved. receipt=", response.hash);
+
+    // Get current block timestamp and add deadline buffer
+    const latestBlock = await provider.getBlock("latest");
+    const deadline = latestBlock.timestamp + 1000;
+
+    // Perform swap: inputAmt of inputToken for at least outputAmt of outputToken
+    await uniswap.swapExactTokensForTokens(
+      inputAmt,
+      outputAmt,
+      [inputAddr, outputAddr],
+      await account.getAddress(),
+      deadline
+    );
+
+    return outputAmt;
   };
 
   const provider = window.ethereum
@@ -177,12 +240,12 @@ const useDapp = ({
     //     ]);
     // }
 
-    const DESIRED_CHAIN_ID = 560048; // This is the default chain ID for Hoodi Testnet
-    if (chainId !== DESIRED_CHAIN_ID) {
-      await provider.send("wallet_switchEthereumChain", [
-        { chainId: `0x${DESIRED_CHAIN_ID.toString(16)}` }, // Must be in hex format
-      ]);
-    }
+    // const DESIRED_CHAIN_ID = 560048; // This is the default chain ID for Hoodi Testnet
+    // if (chainId !== DESIRED_CHAIN_ID) {
+    //   await provider.send("wallet_switchEthereumChain", [
+    //     { chainId: `0x${DESIRED_CHAIN_ID.toString(16)}` }, // Must be in hex format
+    //   ]);
+    // }
 
     // Get and set the address
     setSigner(signer);
